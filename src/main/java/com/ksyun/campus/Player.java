@@ -2,6 +2,7 @@ package com.ksyun.campus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import cn.hutool.core.collection.ListUtil;
@@ -41,9 +42,22 @@ public class Player {
         return pickCard;
     }
 
+    public Integer getMaxCards(){
+        return Collections.max(handCards);
+    }
+
+    public Integer getMinCards(){
+        return Collections.min(handCards);
+    }
+
     //获取翻出的卡
     public void getCards(Integer card){
         openCards.add(card);
+    }
+
+    //移除一张卡
+    public void removeCard(Integer card){
+        handCards.remove(card);
     }
 
 

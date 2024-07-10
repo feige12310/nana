@@ -17,7 +17,7 @@ public class Game {
 
     List<Integer> publicCards = new ArrayList<Integer>();
 
-    List<Integer> openCards = new ArrayList<Integer>();
+    List<OpenCard> openCards = new ArrayList<OpenCard>();
 
     List<Player> players = new ArrayList<Player>();
 
@@ -25,7 +25,7 @@ public class Game {
 
     int currentPlayer;
 
-    boolean gameOver;
+    boolean isGameOver;
 
     public Game(int gamePlayer) throws Exception {
         this.gamePlayer = gamePlayer;
@@ -92,26 +92,48 @@ public class Game {
         //显示玩家的卡片
         for (int i = 0; i < players.size(); i++) {
             ListUtil.sort(players.get(i).getHandCards(), Comparator.naturalOrder());
+            System.out.println("第"+(i+1)+"号玩家的牌是"+players.get(i).getHandCards());
         }
         //未检测到游戏结束，则一直继续
         currentPlayer = 0;
-        while (gameOver){
+        while (!isGameOver){
             //双方玩家轮流进行回合
             System.out.println("当前是"+(currentPlayer+1)+"玩家行动");
             PickCard pickCard = players.get(currentPlayer).pickCards((players.size() + 1));
+            Integer playerC = 0;
             //根据pickCard 返回对应的值
             switch (pickCard.playerNum){
                 case 0:
                     //公共区域随机一张
-                    Integer card = publicCards.get(RandomUtil.randomInt(0, publicCards.size()));
-                    openCards.add(card);
+                    int publicN = RandomUtil.randomInt(0, publicCards.size());
+                    Integer card = publicCards.get(publicN);
+                    openCards.add(new OpenCard(0,card));
+                    System.out.println("玩家"+(currentPlayer+1)+"号翻开公共区域一张牌"+card);
                     players.get(currentPlayer).getCards(card);
                     break;
                 case 1:
                     //获取一号玩家一张卡
+                    if (pickCard.maxOrMin){
+                        //获取最大的一张
+                        playerC = players.get(0).getMaxCards();
+                    }else{
+                        playerC = players.get(0).getMinCards();
+                    }
+                    openCards.add(new OpenCard(1,playerC));
+                    System.out.println("玩家"+(currentPlayer+1)+"号翻开1号玩家一张牌"+playerC);
+                    players.get(currentPlayer).getCards(playerC);
                     break;
                 case 2:
                     //获取二号玩家一张卡
+                    if (pickCard.maxOrMin){
+                        //获取最大的一张
+                        playerC = players.get(1).getMaxCards();
+                    }else{
+                        playerC = players.get(1).getMinCards();
+                    }
+                    openCards.add(new OpenCard(2,playerC));
+                    System.out.println("玩家"+(currentPlayer+1)+"号翻开1号玩家一张牌"+playerC);
+                    players.get(currentPlayer).getCards(playerC);
                     break;
             }
             //判断当前玩家是否结束
@@ -119,7 +141,7 @@ public class Game {
                 //直接继续
                 continue;
             }else if(openCards.size()==2){
-                if(openCards.get(0).equals(openCards.get(1))){
+                if(openCards.get(0).card.equals(openCards.get(1).card)){
                     continue;
                 }else{
                     //清空opencard
@@ -130,9 +152,46 @@ public class Game {
                         currentPlayer = 0;
                     }
                 }
+            }else if (openCards.size()==3){
+                //判断是否全部相等
+                if(openCards.get(0).card.equals(openCards.get(1).card) && openCards.get(0).card.equals(openCards.get(2).card)){
+                    //得分
+                    List<Integer> score = players.get(currentPlayer).getScore();
+                    score.add(openCards.get(0).card);
+                    //判断游戏是否结束
+                    isGameOver = isGameOver(score);
+                    //移除卡片
+                    for (int i = 0; i < openCards.size(); i++) {
+                        OpenCard openCard = openCards.get(i);
+                        switch (openCard.playerNum){
+                            case 0:
+                                //公共区域删除一张牌
+                                publicCards.remove(openCard.card);
+                                break;
+                            case 1:
+                                //移除一号玩家一张卡
+                                players.get(0).removeCard(openCard.card);
+                                break;
+                            case 2:
+                                //移除二号玩家一张卡
+                                players.get(1).removeCard(openCard.card);
+                                break;
+                        }
+                    }
+                    if (isGameOver){
+                        //游戏结束，当前玩家获胜
+                        System.out.println("第"+currentPlayer+"玩家获胜得分"+players.get(currentPlayer).getScore());
+                    }
+                    continue;
+                }
             }
 
         }
+    }
+
+    public boolean isGameOver(List<Integer> scores){
+        //判断游戏是否结束，也即是一名玩家是否拥有7的得分，或者能组合成7的得分 todo
+        return false;
     }
 
     public void reset(){

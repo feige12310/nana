@@ -12,4 +12,5 @@ public class PickCard {
         this.playerNum = playerNum;
         this.maxOrMin = maxOrMin;
     }
+
 }
