@@ -26,10 +26,5 @@
             <artifactId>hutool-all</artifactId>
             <version>5.8.29</version>
         </dependency>
-        <dependency>
-            <groupId>io.cloudevents</groupId>
-            <artifactId>cloudevents-basic-http-example</artifactId>
-            <version>2.3.0</version>
-        </dependency>
     </dependencies>
 </project>
